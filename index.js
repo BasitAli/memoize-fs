@@ -30,11 +30,18 @@ function serialize (val) {
 }
 
 function getCacheFilePath (fn, args, opt) {
-  var salt = opt.salt || ''
-  var fnStr = (opt.noBody ? '' : opt.astBody ? JSON.stringify(parseScript(String(fn))) : String(fn))
-  var argsStr = serialize(args)
-  var hash = crypto.createHash('md5').update(fnStr + argsStr + salt).digest('hex')
-  return path.join(opt.cachePath, opt.cacheId, hash)
+  if( opt.simpleHash ) {
+    var argsStr = serialize(args)
+    var hash = encodeURIComponent(argsStr)
+    return path.join(opt.cachePath, opt.cacheId, hash)
+  }
+  else {
+    var salt = opt.salt || ''
+    var fnStr = (opt.noBody ? '' : opt.astBody ? JSON.stringify(parseScript(String(fn))) : String(fn))
+    var argsStr = serialize(args)
+    var hash = crypto.createHash('md5').update(fnStr + argsStr + salt).digest('hex')
+    return path.join(opt.cachePath, opt.cacheId, hash)
+  }
 }
 
 function buildMemoizer (options) {
